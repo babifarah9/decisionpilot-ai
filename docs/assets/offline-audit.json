@@ -1,0 +1,144 @@
+{
+  "id": "7eaa93bedc37412987417fcb9e7d9d2e",
+  "objective": "Schedule my annual car service under $180, mornings preferred.",
+  "budget": 180.0,
+  "daypart": "morning",
+  "status": "COMPLETED",
+  "manual_minutes": 35,
+  "attention_seconds": 60,
+  "mode": "offline",
+  "candidates": [
+    {
+      "id": "central-0830",
+      "provider": "AutoCare Central",
+      "slot": "2026-09-16 08:30",
+      "cost": 139.0,
+      "rating": 4.7,
+      "eligible": true,
+      "score": 58.39,
+      "note": "Eligible"
+    },
+    {
+      "id": "central-0900",
+      "provider": "AutoCare Central",
+      "slot": "2026-09-15 09:00",
+      "cost": 149.0,
+      "rating": 4.7,
+      "eligible": true,
+      "score": 55.61,
+      "note": "Eligible"
+    },
+    {
+      "id": "northside-1100",
+      "provider": "Northside Motors",
+      "slot": "2026-09-15 11:00",
+      "cost": 165.0,
+      "rating": 4.9,
+      "eligible": true,
+      "score": 53.17,
+      "note": "Eligible"
+    },
+    {
+      "id": "quick-1400",
+      "provider": "QuickService Garage",
+      "slot": "2026-09-16 14:00",
+      "cost": 125.0,
+      "rating": 4.4,
+      "eligible": false,
+      "score": 59.28,
+      "note": "Afternoon appointment"
+    }
+  ],
+  "proposals": [
+    {
+      "id": "81db08ec593748f9bc0644ee8827c91c",
+      "candidate": {
+        "id": "central-0830",
+        "provider": "AutoCare Central",
+        "slot": "2026-09-16 08:30",
+        "cost": 139.0,
+        "rating": 4.7,
+        "eligible": true,
+        "score": 58.39,
+        "note": "Eligible"
+      },
+      "reason": "Highest equal-weight price/rating score among appointments under your budget and within your confirmed time preference. Deterministic offline demonstration.",
+      "status": "APPROVED",
+      "expires_at": 1789141409.2747464,
+      "created_at": "2026-09-11T15:13:29.274747+00:00",
+      "fingerprint": "6e136f5ed34abb93db1c6fd96fe57eab54121d4f94ef26c9b2b4e9ccb2e7eb42",
+      "decided_at": "2026-09-11T15:13:29.275314+00:00"
+    }
+  ],
+  "booking": {
+    "proposal_id": "81db08ec593748f9bc0644ee8827c91c",
+    "candidate_id": "central-0830",
+    "provider": "AutoCare Central",
+    "slot": "2026-09-16 08:30",
+    "cost": 139.0,
+    "currency": "USD",
+    "confirmation": "SIM-D1DB357F",
+    "simulated": true
+  },
+  "verified": true,
+  "created_at": "2026-09-11T15:13:29.273680+00:00",
+  "updated_at": "2026-09-11T15:13:29.275962+00:00",
+  "error": null,
+  "audit": [
+    {
+      "seq": 1,
+      "kind": "OBJECTIVE_RECEIVED",
+      "message": "Schedule my annual car service under $180, mornings preferred.",
+      "created_at": "2026-09-11T15:13:29.273924+00:00"
+    },
+    {
+      "seq": 2,
+      "kind": "PLAN",
+      "message": "Search inventory \u2192 compare price and rating \u2192 propose \u2192 wait for human \u2192 execute \u2192 verify.",
+      "created_at": "2026-09-11T15:13:29.273951+00:00"
+    },
+    {
+      "seq": 3,
+      "kind": "SEARCH",
+      "message": "Evaluated 4 synthetic appointments.",
+      "created_at": "2026-09-11T15:13:29.274680+00:00"
+    },
+    {
+      "seq": 4,
+      "kind": "EVALUATION",
+      "message": "Equal weight: normalized rating and price headroom. Budget and morning constraints enforced.",
+      "created_at": "2026-09-11T15:13:29.274766+00:00"
+    },
+    {
+      "seq": 5,
+      "kind": "DECISION_GATE",
+      "message": "Proposed central-0830 at $139.00; no booking executed.",
+      "created_at": "2026-09-11T15:13:29.274773+00:00"
+    },
+    {
+      "seq": 6,
+      "kind": "HUMAN_APPROVAL",
+      "message": "Human approved proposal 81db08ec593748f9bc0644ee8827c91c.",
+      "created_at": "2026-09-11T15:13:29.275319+00:00"
+    },
+    {
+      "seq": 7,
+      "kind": "EXECUTION",
+      "message": "Simulated provider accepted booking; SIM-D1DB357F.",
+      "created_at": "2026-09-11T15:13:29.275609+00:00"
+    },
+    {
+      "seq": 8,
+      "kind": "VERIFICATION",
+      "message": "Receipt, provider, slot and price match approved proposal.",
+      "created_at": "2026-09-11T15:13:29.275919+00:00"
+    }
+  ],
+  "metrics": {
+    "manual_minutes_estimate": 35,
+    "human_attention_seconds": 60,
+    "human_minutes_saved": 34.0,
+    "label": "Estimated savings; baseline is user supplied, attention is browser active time. Not an empirical productivity claim."
+  },
+  "evidence_note": "Offline deterministic test fixture. Human attention was supplied as 60 seconds, not measured. All providers and receipts are synthetic."
+}

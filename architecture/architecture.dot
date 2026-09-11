@@ -1,0 +1,37 @@
+digraph DecisionPilot {
+ graph [rankdir=TB, bgcolor="#f5f7f3", pad=.4, nodesep=.45, ranksep=.65, fontname="Arial", label="DecisionPilot AI  |  Autonomy with a human decision gate", labelloc=t, fontsize=24, fontcolor="#183b31"];
+ node [shape=box, style="rounded,filled", fillcolor="white", color="#b9cec2", fontname="Arial", fontsize=13, margin=".22,.16", fontcolor="#16382d"];
+ edge [color="#628674", arrowsize=.7, fontname="Arial", fontsize=10, fontcolor="#4d6c5a"];
+ ui [label="USER / BROWSER UI\nObjective, constraints and decision"];
+ subgraph cluster_planner {label="AUTONOMOUS PLANNING — NO APPROVAL OR EXECUTION TOOLS";color="#c1d3c6";style="rounded";fontname="Arial";fontcolor="#59745e";fontsize=11;
+ agent [label="Strands Agent\nFresh instance per objective",fillcolor="#e2eee3"];
+ tools [label="Read-only tools\nSearch + rank synthetic appointments"];
+ model [label="Amazon Bedrock\nNova model • cloud validation pending",style="rounded,dashed,filled"];
+ agent -> tools [dir=both];agent -> model [dir=both,style=dashed];
+ }
+ gate [label="HUMAN DECISION GATE\nValidate best candidate • persist exact proposal\nWait; no booking exists",fillcolor="#fff1d1",color="#c1a15a",penwidth=2];
+ human [label="Human-only controller\nSession ownership + explicit approve / reject",fillcolor="#fff1d1",color="#c1a15a"];
+ execute [label="Idempotent executor\nApproved proposal → simulated provider receipt"];
+ verify [label="Verification\nCompare receipt, provider, slot and price"];
+ complete [label="COMPLETED\nEstimated human minutes saved",fillcolor="#153e34",fontcolor=white];
+ stop [label="REJECTED / EXPIRED\nNo booking",fillcolor="#f1eee8"];
+ failed [label="VERIFICATION FAILED\nNo completion claim",fillcolor="#f5e7de"];
+ storage [shape=cylinder,label="SQLite state + audit + receipts\nPersistent host volume\nOptional AWS EC2 / EBS",fillcolor="#e5ece4"];
+ core [label="Optional AgentCore Runtime\nStateless planner only\nNot yet deployed",style="rounded,dashed,filled"];
+ ui -> agent [label="via controller"];
+ agent -> gate [label="validated recommendation"];
+ gate -> human [label="UI presents proposal"];
+ ui -> human [label="explicit click",color="#b18b3a"];
+ human -> execute [label="approved",color="#b18b3a"];
+ human -> stop [label="rejected / expired"];
+ execute -> verify;
+ verify -> complete [label="match"];
+ verify -> failed [label="mismatch"];
+ gate -> storage [label="persist",constraint=false];
+ human -> storage [constraint=false];
+ execute -> storage [constraint=false];
+ verify -> storage [constraint=false];
+ core -> agent [style=dashed,label="optional host",constraint=false];
+ {rank=same; core; ui;}
+ {rank=same; storage; execute; stop;}
+}

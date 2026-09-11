@@ -1,0 +1,15 @@
+stateDiagram-v2
+  [*] --> PLANNING
+  PLANNING --> WAITING_FOR_HUMAN: Validated recommendation
+  PLANNING --> NO_MATCH: No eligible candidate
+  PLANNING --> FAILED: Model or validation error
+  WAITING_FOR_HUMAN --> APPROVED: Human approves
+  WAITING_FOR_HUMAN --> REJECTED: Human rejects
+  WAITING_FOR_HUMAN --> EXPIRED: Quote expires
+  APPROVED --> EXPIRED: Expires before execution
+  APPROVED --> VERIFYING: Idempotent execution
+  VERIFYING --> COMPLETED: Receipt matches
+  VERIFYING --> VERIFICATION_FAILED: Receipt mismatch
+  VERIFICATION_FAILED --> COMPLETED: Receipt verified on retry
+  COMPLETED --> [*]
+  REJECTED --> [*]

@@ -1,0 +1,37 @@
+'use strict';
+const $ = id => document.getElementById(id);
+let session, current, taskId, polling, busy=false, attention=0, lastTick=Date.now(), lastActivity=Date.now();
+for(const event of ['pointerdown','pointermove','keydown','scroll']) document.addEventListener(event,()=>lastActivity=Date.now(),{passive:true});
+setInterval(()=>{const now=Date.now(); if(!document.hidden && now-lastActivity<30000 && (!current || current.status==='WAITING_FOR_HUMAN')) {attention+=(now-lastTick)/1000; sessionStorage.setItem('dp_attention',String(attention));} lastTick=now;},1000);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$'+Number(n).toFixed(2);
+async function api(path, body){const r=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','X-CSRF-Token':session.csrf}:{},body:body?JSON.stringify(body):undefined});const v=await r.json();if(!r.ok)throw Error(v.error||'Request failed');return v;}
+function error(e){$('error').textContent=e.message; $('error').hidden=false;}
+function lock(value){busy=value;for(const id of ['start','approve','reject'])$(id).disabled=value;}
+async function refreshHistory(){const s=await api('/api/session');session=s;$('history').innerHTML='<option value="">Start a new workflow</option>'+s.tasks.map(t=>`<option value="${esc(t.id)}">${esc(t.id.slice(0,7))} · ${esc(t.status.replaceAll('_',' '))}</option>`).join('');$('history').value=taskId||'';}
+async function load(){if(!taskId)return;current=await api('/api/tasks/'+taskId);render(current); if(['PLANNING','APPROVED','VERIFYING'].includes(current.status)) polling=setTimeout(poll,700);else clearTimeout(polling);}
+async function poll(){try{await load();}catch(e){error(e);}}
+function render(t){$('workflow').hidden=false;$('status').textContent=t.status.replaceAll('_',' ');$('manual').textContent=t.manual_minutes+' min';$('saved').textContent=t.verified?t.metrics.human_minutes_saved:'—';$('attention').textContent=t.attention_seconds?Math.round(t.attention_seconds)+' sec':'In progress';$('saved-bar').style.width=t.verified?Math.min(100,t.metrics.human_minutes_saved/t.manual_minutes*100)+'%':'0%';
+const phases=[['Plan & search',['SEARCH']],['Compare options',['EVALUATION']],['Human decision',['HUMAN_APPROVAL','HUMAN_REJECTION']],['Execute',['EXECUTION']],['Verify',['VERIFICATION']]];
+$('steps').innerHTML=phases.map(([label,kinds],i)=>{const done=t.audit.some(e=>kinds.includes(e.kind))&&(i!==4||t.verified);const active=(i===0&&t.status==='PLANNING')||(i===2&&t.status==='WAITING_FOR_HUMAN')||(i===3&&t.status==='APPROVED')||(i===4&&t.status==='VERIFYING');return `<li class="${done?'done':active?'active':''}">${done?'✓':active?'●':'○'} ${esc(label)}</li>`;}).join('');
+const p=t.proposals.at(-1);$('gate').hidden=t.status!=='WAITING_FOR_HUMAN';if(p){$('provider').textContent=p.candidate.provider;$('slot').textContent=p.candidate.slot+' · ★ '+p.candidate.rating;$('price').textContent=money(p.candidate.cost);$('reason').textContent=p.reason;$('expiry').textContent='Quote expires '+new Date(p.expires_at*1000).toLocaleTimeString()+'. Approval applies only to this exact appointment and price.';}
+$('candidates').innerHTML=t.candidates.map(c=>`<tr class="${p?.candidate.id===c.id?'best':''}"><td>${esc(c.provider)}${p?.candidate.id===c.id?' · Recommended':''}<small>${esc(c.slot)}</small></td><td>${money(c.cost)}</td><td>★ ${c.rating}</td><td>${c.score.toFixed(2)}</td><td class="fit">${esc(c.note)}</td></tr>`).join('');
+$('audit').innerHTML=t.audit.map(e=>`<div class="event"><time>${esc(new Date(e.created_at).toLocaleTimeString())}</time><div><b>${esc(e.kind.replaceAll('_',' '))}</b><p>${esc(e.message)}</p></div></div>`).join('');
+let result='';if(t.status==='COMPLETED')result=`<h2>✓ Verified. Your simulated booking is complete.</h2><p>${esc(t.booking.provider)} · ${esc(t.booking.slot)} · ${money(t.booking.cost)}</p><p>Confirmation: <strong>${esc(t.booking.confirmation)}</strong></p><p>We checked the provider receipt against your approved appointment and price. No real appointment or payment was made.</p>`;
+if(t.status==='REJECTED')result='<h2>Rejected. No booking was made.</h2><p>Your decision was recorded. Adjust your preferences above and start a new search whenever you’re ready.</p>';
+if(t.status==='APPROVED')result='<h2>Approved by you.</h2><p>The executor can now resume this exact proposal.</p><button class="primary" id="resume">Resume approved booking</button>';
+if(t.status==='VERIFYING')result='<h2>Booking recorded. Verification in progress.</h2><button class="primary" id="verify">Verify provider receipt</button>';
+if(t.status==='VERIFICATION_FAILED')result='<h2>Verification failed. Completion withheld.</h2><p>The receipt did not match. No additional booking will be made.</p>';
+if(t.status==='NO_MATCH')result='<h2>No matching appointment.</h2><p>Try adjusting your confirmed budget or time preference. No booking was made.</p>';
+if(t.status==='EXPIRED')result='<h2>Quote expired. No new action taken.</h2><p>Start a fresh search for a new proposal.</p>';
+if(t.status==='FAILED')result='<h2>Planning paused safely.</h2><p>'+esc(t.error)+'</p>';
+$('result').hidden=!result;$('result').innerHTML=result;if($('resume'))$('resume').onclick=resume;if($('verify'))$('verify').onclick=verify;
+}
+$('start').onclick=async()=>{lock(true);$('error').hidden=true;clearTimeout(polling);try{const v=await api('/api/tasks',{objective:$('objective').value,budget:Number($('budget').value),daypart:$('daypart').value,manual_minutes:Number($('baseline').value)});taskId=v.id;current=null;sessionStorage.setItem('dp_task',taskId);await refreshHistory();await load();}catch(e){error(e);}finally{lock(false);}};
+async function decide(approved){if(busy)return;lock(true);$('error').hidden=true;try{await api('/api/decision',{task_id:taskId,proposal_id:current.proposals.at(-1).id,approved,attention_seconds:Math.round(attention)});attention=0;sessionStorage.removeItem('dp_attention');await load();await refreshHistory();if(current.status==='APPROVED')await resume();}catch(e){error(e);}finally{lock(false);}}
+async function resume(){try{await api('/api/resume',{task_id:taskId});await load();if(current.status==='VERIFYING')await verify();}catch(e){error(e);}}
+async function verify(){try{await api('/api/verify',{task_id:taskId});await load();await refreshHistory();}catch(e){error(e);}}
+$('approve').onclick=()=>decide(true);$('reject').onclick=()=>decide(false);
+$('history').onchange=async()=>{clearTimeout(polling);taskId=$('history').value;sessionStorage.setItem('dp_task',taskId);attention=0;if(taskId)await load();else{current=null;$('workflow').hidden=true;}};
+$('download').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(current,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='decisionpilot-audit-'+taskId.slice(0,7)+'.json';a.click();URL.revokeObjectURL(url);};
+(async()=>{try{session=await api('/api/session');$('mode').textContent=session.mode==='offline'?'Offline demonstration':session.mode==='bedrock'?'Strands + Amazon Bedrock':'Strands on AgentCore';$('mode-note').textContent=session.mode==='offline'?'Offline mode uses deterministic logic, not an AI model.':'';taskId=sessionStorage.getItem('dp_task');attention=Number(sessionStorage.getItem('dp_attention')||0);await refreshHistory();if(taskId)await load();}catch(e){error(e);}})();

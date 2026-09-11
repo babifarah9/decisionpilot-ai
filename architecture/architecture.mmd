@@ -1,0 +1,20 @@
+flowchart TD
+  userUi["User / browser UI"] --> controller["Workflow controller"]
+  controller --> planner["Strands Agent: new instance per objective"]
+  planner <--> tools["Read-only search and ranking tools"]
+  planner <--> bedrock["Amazon Bedrock: Nova model"]
+  tools --> inventory["Synthetic appointment inventory"]
+  planner --> gate["Validate recommendation and persist Decision Gate"]
+  gate --> userUi
+  userUi -->|"Explicit approve or reject"| human["Human-only decision controller"]
+  human -->|"Rejected or expired"| stopped["Stop without booking"]
+  human -->|"Approved exact proposal"| execute["Idempotent simulated execution"]
+  execute --> verify["Compare provider receipt with approved proposal"]
+  verify -->|"Match"| completed["Completed and estimated minutes saved"]
+  verify -->|"Mismatch"| failed["Verification failed"]
+  gate --> storage[("SQLite state and audit on persistent host volume")]
+  human --> storage
+  execute --> storage
+  verify --> storage
+  agentcore["Optional AgentCore: stateless planner hosting"] -.-> planner
+  ec2["Optional EC2 + EBS: UI, controller and persistent storage"] -.-> storage

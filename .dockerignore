@@ -1,0 +1,7 @@
+.git
+.env*
+.venv
+.decisionpilot
+**/__pycache__
+**/*.pyc
+*.zip

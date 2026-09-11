@@ -1,0 +1,37 @@
+test_approval_must_be_boolean (test_gate.GateTests.test_approval_must_be_boolean) ... ok
+test_approval_replay (test_gate.GateTests.test_approval_replay) ... ok
+test_budget_strict_and_morning (test_gate.GateTests.test_budget_strict_and_morning) ... ok
+test_cloud_failure_is_not_offline_fallback (test_gate.GateTests.test_cloud_failure_is_not_offline_fallback) ... ok
+test_cloud_run_cap (test_gate.GateTests.test_cloud_run_cap) ... ok
+test_concurrent_approval (test_gate.GateTests.test_concurrent_approval) ... ok
+test_concurrent_execution (test_gate.GateTests.test_concurrent_execution) ... ok
+test_cross_task_proposal_no_mutation (test_gate.GateTests.test_cross_task_proposal_no_mutation) ... ok
+test_duplicate_execution_is_idempotent (test_gate.GateTests.test_duplicate_execution_is_idempotent) ... ok
+test_end_to_end (test_gate.GateTests.test_end_to_end) ... ok
+test_execution_blocked_before_approval (test_gate.GateTests.test_execution_blocked_before_approval) ... ok
+test_expired_after_approval (test_gate.GateTests.test_expired_after_approval) ... ok
+test_expired_proposal (test_gate.GateTests.test_expired_proposal) ... ok
+test_interrupted_planning_recovery_preserves_gate (test_gate.GateTests.test_interrupted_planning_recovery_preserves_gate) ... ok
+test_negative_attention_rejected (test_gate.GateTests.test_negative_attention_rejected) ... ok
+test_no_approval_tool (test_gate.GateTests.test_no_approval_tool) ... ok
+test_no_match (test_gate.GateTests.test_no_match) ... ok
+test_nonfinite_budget_rejected (test_gate.GateTests.test_nonfinite_budget_rejected) ... ok
+test_pending_proposal_cannot_be_replaced (test_gate.GateTests.test_pending_proposal_cannot_be_replaced) ... ok
+test_rejection_is_terminal (test_gate.GateTests.test_rejection_is_terminal) ... ok
+test_restart_persistence (test_gate.GateTests.test_restart_persistence) ... ok
+test_tampered_proposal (test_gate.GateTests.test_tampered_proposal) ... ok
+test_verification_before_execution_blocked (test_gate.GateTests.test_verification_before_execution_blocked) ... ok
+test_verify_failure_never_completes (test_gate.GateTests.test_verify_failure_never_completes) ... ok
+test_wrong_model_selection_fails_closed (test_gate.GateTests.test_wrong_model_selection_fails_closed) ... ok
+test_wrong_owner_cannot_read_or_approve (test_gate.GateTests.test_wrong_owner_cannot_read_or_approve) ... ok
+test_asset_and_security_headers (test_http.HTTPTests.test_asset_and_security_headers) ... ok
+test_csrf_rejected (test_http.HTTPTests.test_csrf_rejected) ... ok
+test_foreign_origin_rejected (test_http.HTTPTests.test_foreign_origin_rejected) ... ok
+test_http_lifecycle (test_http.HTTPTests.test_http_lifecycle) ... ok
+test_invalid_payload (test_http.HTTPTests.test_invalid_payload) ... ok
+test_session_isolation (test_http.HTTPTests.test_session_isolation) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 3.176s
+
+OK

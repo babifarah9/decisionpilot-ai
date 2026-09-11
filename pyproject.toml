@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decisionpilot-ai"
+version = "0.2.0"
+description = "Personal administration with a human-only decision gate, built with Strands Agents SDK."
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+license = "MIT"
+dependencies = []
+
+[project.optional-dependencies]
+aws = ["strands-agents>=1.20,<2", "boto3>=1.40,<2", "pydantic>=2.10,<3", "bedrock-agentcore>=1.0,<2"]
+
+[project.scripts]
+decisionpilot = "decisionpilot.server:main"
+
+[tool.setuptools.packages.find]
+include = ["decisionpilot*"]
+
+[tool.setuptools.package-data]
+decisionpilot = ["web/*"]

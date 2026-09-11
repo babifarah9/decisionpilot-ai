@@ -1,0 +1,36 @@
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    environment:
+      DECISIONPILOT_MODE: ${DECISIONPILOT_MODE:-offline}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      DECISIONPILOT_MODEL: ${DECISIONPILOT_MODEL:-amazon.nova-lite-v1:0}
+      DECISIONPILOT_PUBLIC_ORIGIN: https://${DEMO_DOMAIN:?Set DEMO_DOMAIN to your DNS hostname}
+      DECISIONPILOT_AGENTCORE_ARN: ${DECISIONPILOT_AGENTCORE_ARN:-}
+      DECISIONPILOT_DAILY_CLOUD_RUNS: ${DECISIONPILOT_DAILY_CLOUD_RUNS:-30}
+    volumes:
+      - workflow-data:/data
+    expose:
+      - '8080'
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '2'
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DEMO_DOMAIN: ${DEMO_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - app
+volumes:
+  workflow-data:
+  caddy-data:
