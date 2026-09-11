@@ -6,7 +6,7 @@
 
 DecisionPilot AI handles the comparison and coordination behind routine personal administration, then pauses for a human decision before an action can commit money or time. Built for the **Everyday Agents** track of AWS **Agents for Humans**, using the **Strands Agents SDK** and an Amazon Bedrock integration.
 
-> **Current release:** the local, deterministic car-service demo and its safety/API tests work. Bedrock/Strands invocation, AgentCore deployment, public hosting, and browser visual QA are not yet verified. AWS package installation was blocked in the build environment. The SDK/cloud paths must pass the documented gates before submission. All provider inventory, prices and bookings are simulated—even in Bedrock mode. No garage is contacted and no payment is taken.
+> **Current release:** the local, deterministic car-service demo and its safety/API tests work. Bedrock/Strands invocation, AgentCore deployment, public hosting, and browser visual QA are not yet verified. GitHub CI now passes AWS dependency installation, dependency checks and real SDK construction. Live model invocation and deployment still require AWS authorization. Start with [the manual AWS validation guide](docs/aws-next-step.md). All provider inventory, prices and bookings are simulated—even in Bedrock mode. No garage is contacted and no payment is taken.
 
 ## Try it in under a minute
 
@@ -87,7 +87,7 @@ Windows PowerShell: activate with `.venv\Scripts\Activate.ps1`; set environment 
 
 Use IAM Identity Center/SSO locally or an instance role on AWS. Never commit keys or paste them into chat. Example least-privilege model policy: [deploy/bedrock-policy.json](deploy/bedrock-policy.json). Model availability/access is account and region dependent. Failure surfaces as `FAILED`; the app never silently substitutes offline results. See [deployment instructions](docs/deployment.md) for model troubleshooting, AgentCore and HTTPS hosting.
 
-Dependencies use bounded version ranges. A validated lockfile is intentionally absent because package installation was unavailable during this build. After successful installation, record `pip freeze` in the validation evidence before release.
+Dependencies use bounded version ranges. GitHub CI has validated installation; a reproducible release lockfile still needs to be captured from that environment before release.
 
 ## Test
 

@@ -9,7 +9,7 @@ Official requirements checked September 11, 2026: [rules](https://agentsforhuman
 | Submit by September 14, 2026, 5 PM PDT | Pending; September 15, 00:00 UTC |
 | Eligible entrant; truthful residence/domicile | Owner confirmation; Quebec is excluded |
 | New project during competition; disclose earlier work | Owner confirms starter provenance |
-| Working Strands project | Integration written; live validation blocked |
+| Working Strands project | SDK construction passed; live inference pending |
 | Public source repository, README and MIT/Apache license | Source included in this public repository; check Actions |
 | Architecture diagram | PNG, SVG and Mermaid ready |
 | Description | `submission_draft.md` ready for review |
@@ -29,11 +29,11 @@ Official requirements checked September 11, 2026: [rules](https://agentsforhuman
 - [x] Persistent state, audit and simulated receipt verification implemented.
 - [x] Secrets excluded from release package; heuristic scan passes.
 - [x] Architecture distinguishes current code from optional cloud infrastructure.
-- [ ] Install AWS dependencies, run `pip check` and SDK-construction check.
+- [x] Install AWS dependencies, run `pip check` and SDK-construction check in GitHub CI.
 - [ ] Complete a real Strands/Bedrock tool invocation and save evidence.
 - [ ] Complete browser approval/rejection tests in model-backed mode.
 - [ ] Validate desktop/mobile layouts and collect actual screenshots.
-- [ ] Verify GitHub license detection and passing CI on this source release.
+- [x] Verify GitHub license detection and passing CI on the initial source release.
 - [ ] Record public video without fabricated model results or deployment claims.
 - [ ] If hosting, verify HTTPS, persistence, session isolation and spend controls.
 - [ ] Replace any draft-status/link instructions in published materials with actual outcomes.

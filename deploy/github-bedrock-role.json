@@ -1,0 +1,46 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "DecisionPilot GitHub OIDC role for Nova smoke testing only; does not deploy services",
+  "Parameters": {
+    "ExistingOidcProviderArn": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Existing token.actions.githubusercontent.com OIDC provider ARN, if your account already has one; otherwise leave blank"
+    }
+  },
+  "Conditions": {"CreateProvider": {"Fn::Equals": [{"Ref": "ExistingOidcProviderArn"}, ""]}},
+  "Resources": {
+    "GitHubProvider": {
+      "Type": "AWS::IAM::OIDCProvider",
+      "Condition": "CreateProvider",
+      "Properties": {"Url": "https://token.actions.githubusercontent.com", "ClientIdList": ["sts.amazonaws.com"]}
+    },
+    "BedrockTestRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "MaxSessionDuration": 3600,
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {"Federated": {"Fn::If": ["CreateProvider", {"Ref": "GitHubProvider"}, {"Ref": "ExistingOidcProviderArn"}]}},
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {"StringEquals": {
+              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+              "token.actions.githubusercontent.com:sub": "repo:babifarah9@35416766/decisionpilot-ai@1366355418:ref:refs/heads/main"
+            }}
+          }]
+        },
+        "Policies": [{
+          "PolicyName": "DecisionPilotNovaSmokeOnly",
+          "PolicyDocument": {"Version": "2012-10-17", "Statement": [{
+            "Effect": "Allow",
+            "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+            "Resource": "arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0"
+          }]}
+        }]
+      }
+    }
+  },
+  "Outputs": {"GitHubRoleArn": {"Value": {"Fn::GetAtt": ["BedrockTestRole", "Arn"]}, "Description": "Paste into the manual Live Bedrock validation workflow input; this ARN is not a secret"}}
+}

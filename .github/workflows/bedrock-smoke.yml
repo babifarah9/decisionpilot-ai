@@ -1,0 +1,46 @@
+name: Live Bedrock validation
+on:
+  workflow_dispatch:
+    inputs:
+      aws_role_arn:
+        description: AWS role ARN from the reviewed CloudFormation stack
+        type: string
+        required: true
+      authorize_metered_call:
+        description: I authorize metered Nova calls in my AWS account for this test
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: live-bedrock-smoke
+  cancel-in-progress: false
+jobs:
+  live-test:
+    if: inputs.authorize_metered_call && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install '.[aws]'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_role_arn }}
+          aws-region: us-east-1
+          role-duration-seconds: 900
+          mask-aws-account-id: true
+      - run: python scripts/bedrock_smoke.py --allow-aws-call
+        env:
+          AWS_REGION: us-east-1
+          DECISIONPILOT_MODEL: amazon.nova-lite-v1:0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bedrock-validation-evidence
+          path: .decisionpilot/bedrock-evidence.json
+          include-hidden-files: true
+          retention-days: 7

@@ -8,19 +8,19 @@
 |---|---|
 | Starter inspection | Completed; source, manifest, tests and existing assets inspected |
 | Python compilation | Passed on Python 3.12 |
-| Core lifecycle + HTTP tests | 32 passed |
+| Core lifecycle + HTTP tests | 32 passed locally and in GitHub CI on Python 3.12 and 3.13 |
 | Offline safety demonstration | Passed: preapproval blocked; approved execution idempotent; receipt verified |
 | JavaScript syntax | Passed `node --check` |
 | Secrets scan | Passed heuristic scan; no credential values found |
 | Architecture visual inspection | PNG rendered and inspected |
-| SDK dependency installation | Blocked by environment network approval cancellation |
-| Real SDK construction | Blocked: `ModuleNotFoundError: No module named 'strands'` |
-| Live Strands/Bedrock invocation | Not performed; credentials absent and SDK unavailable |
+| SDK dependency installation | Passed on GitHub CI; pip check also passed |
+| Real SDK construction | Passed on GitHub CI; two read-only tools and AgentCore rejection of approval payload verified |
+| Live Strands/Bedrock invocation | Not performed; owner AWS authorization pending |
 | AgentCore deployment | Not performed; owner AWS authorization required |
 | Container build / public deployment | Prepared, not executed |
 | Browser visual QA / screenshots | Blocked: cloud browser rejected access to local address |
 | Public repository lookup | Confirmed public with push access: `babifarah9/decisionpilot-ai` |
-| Public repository publication | Source release prepared for the connected public repository; verify the current commit and Actions results |
+| Public repository publication | 41-file source release published; GitHub detects MIT license; all three initial CI jobs passed |
 | Devpost / Builder publication | Drafts prepared; not published |
 
 ## Changes from the supplied starter
@@ -68,3 +68,7 @@ python scripts/bedrock_smoke.py --allow-aws-call
 ```
 
 Record actual cloud outputs, installed versions, successful UI checks and public URLs here before changing the release decision.
+
+## GitHub evidence
+
+[Passing CI run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34615901169) for source commit `1b67769bfc7de631db53f4c19c57924acb9520f6`. The manual live-AWS workflow remains unrun.
