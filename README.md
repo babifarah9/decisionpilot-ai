@@ -2,11 +2,11 @@
 
 **Your agent does the work. You make the call.**
 
-[GitHub repository](https://github.com/babifarah9/decisionpilot-ai) · [MIT license](LICENSE) · [Architecture](architecture/architecture.png) · [Setup and deployment](docs/deployment.md) · [Submission kit](docs/submission_draft.md) · [Validation status](docs/validation.md)
+[Live demo](https://d2bjqcxkm4ezmd.cloudfront.net) · [GitHub repository](https://github.com/babifarah9/decisionpilot-ai) · [MIT license](LICENSE) · [Architecture](architecture/architecture.png) · [Setup and deployment](docs/deployment.md) · [Submission kit](docs/submission_draft.md) · [Validation status](docs/validation.md)
 
 DecisionPilot AI handles the comparison and coordination behind routine personal administration, then pauses for a human decision before an action can commit money or time. Built for the **Everyday Agents** track of AWS **Agents for Humans**, using the **Strands Agents SDK** and an Amazon Bedrock integration.
 
-> **Current release:** live Strands/Bedrock planning passed on September 13, 2026 using Amazon Nova Lite and stopped at the Human Decision Gate ([evidence run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)). The 32 safety/API tests and SDK construction checks pass. Public hosting, browser visual QA and AgentCore deployment remain pending. Use [the prepared AWS demo deployment](docs/public-demo-next-step.md) next. All providers, prices and bookings are simulated, including in Bedrock mode; no garage is contacted or payment taken.
+> **Current release:** live Strands/Bedrock planning passed on September 13, 2026 using Amazon Nova Lite and stopped at the Human Decision Gate ([evidence run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)). The 32 safety/API tests and SDK construction checks pass. The owner completed the EC2/CloudFront deployment and reported a passing origin health check in Bedrock mode. [Open the public demo](https://d2bjqcxkm4ezmd.cloudfront.net). Public browser approval/rejection, visual QA and restart acceptance checks remain pending; this session could not independently open the CloudFront URL. AgentCore is not deployed. See [hosting instructions](docs/public-demo-next-step.md). All providers, prices and bookings are simulated, including in Bedrock mode; no garage is contacted or payment taken.
 
 ## Try it in under a minute
 
