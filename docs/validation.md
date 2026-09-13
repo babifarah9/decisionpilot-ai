@@ -2,7 +2,7 @@
 
 ## Result
 
-**Working deterministic MVP and verified live Strands/Bedrock planning; public hosting and browser acceptance remain pending.** This report does not certify the project as ready to submit.
+**Working deterministic MVP and verified live Strands/Bedrock planning; public AWS hosting succeeded and the owner confirmed both browser decision paths.** This report does not certify the project as ready to submit.
 
 | Check | Result |
 |---|---|
@@ -17,8 +17,8 @@
 | Real SDK construction | Passed on GitHub CI; two read-only tools and AgentCore rejection of approval payload verified |
 | Live Strands/Bedrock invocation | Passed September 13: Nova Lite planning reached the human gate; no booking executed |
 | AgentCore deployment | Not performed; owner AWS authorization required |
-| Container build / public deployment | Prepared, not executed |
-| Browser visual QA / screenshots | Blocked: cloud browser rejected access to local address |
+| Public deployment | EC2/CloudFront deployed by owner; launcher origin health passed in Bedrock mode. Docker was not used. |
+| Browser acceptance | Owner confirmed approval/completion and rejection on the public demo; supplied desktop landing-page screenshot inspected. Mobile, isolation and restart checks remain pending. |
 | Public repository lookup | Confirmed public with push access: `babifarah9/decisionpilot-ai` |
 | Public repository publication | 41-file source release published; GitHub detects MIT license; all three initial CI jobs passed |
 | Devpost / Builder publication | Drafts prepared; not published |
@@ -76,3 +76,7 @@ Record actual cloud outputs, installed versions, successful UI checks and public
 ## Prepared deployment validation
 
 Public CloudFormation template passed `cfn-lint` for us-east-1. Launcher Python compilation, embedded bootstrap/configuration shell syntax, exact HTTPS-origin handling and rejection of malformed host URLs passed. All 32 existing tests passed again. These checks do not establish that AWS provisioning or browser acceptance has succeeded.
+
+## Public demo acceptance update
+
+Live demo: https://d2bjqcxkm4ezmd.cloudfront.net. The owner ran the reviewed deployment at source commit `851b24e40e697a31e9e54b6ae058437dcbdc7062`; the launcher reported successful origin health in Bedrock mode. The owner then confirmed both requested approval/completion and rejection checks. These are owner-reported browser results, not assistant-operated tests. The supplied screenshot shows the desktop objective form and Strands/Bedrock mode, not the completed receipt or rejection state. No specific observed savings number is claimed. Exporting a completed audit and recording those states will strengthen submission evidence. AgentCore remains undeployed.

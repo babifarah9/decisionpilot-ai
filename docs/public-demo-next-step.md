@@ -1,6 +1,6 @@
 # Public AWS demo: reviewed CloudShell deployment
 
-Status: **prepared; not yet deployed or validated in AWS**. Live Strands/Nova planning passed on September 13, 2026 ([run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)).
+Status: **deployed by owner; origin health passed in Bedrock mode; owner confirmed browser approval/completion and rejection**. Live demo: https://d2bjqcxkm4ezmd.cloudfront.net. The following instructions reproduce that deployment. Live Strands/Nova planning passed on September 13, 2026 ([run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)).
 
 ## What this creates
 

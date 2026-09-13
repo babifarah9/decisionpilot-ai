@@ -1,6 +1,6 @@
 # Setup and deployment
 
-Status: **live Strands/Bedrock planning verified; public hosting and AgentCore not yet deployed**. [Passing live run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240). Start with the [reviewed CloudShell public-demo guide](public-demo-next-step.md).
+Status: **live Strands/Bedrock planning verified; EC2/CloudFront public demo deployed; AgentCore not deployed**. [Passing live run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240). Start with the [reviewed CloudShell public-demo guide](public-demo-next-step.md).
 
 ## 1. Local test build
 

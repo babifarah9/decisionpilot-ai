@@ -1,6 +1,6 @@
 # Submission checklist
 
-**Release decision: NOT YET SUBMISSION-READY.** The offline build passes; real SDK/AWS validation and required public artifacts remain unfinished.
+**Release decision: NOT YET SUBMISSION-READY.** The MVP, live SDK/AWS planning and deployment work; owner-reported browser decision tests pass. Required video and final submission remain unfinished.
 
 Official requirements checked September 11, 2026: [rules](https://agentsforhumans.devpost.com/rules) and [overview](https://agentsforhumans.devpost.com/).
 
@@ -15,9 +15,9 @@ Official requirements checked September 11, 2026: [rules](https://agentsforhuman
 | Description | `submission_draft.md` ready for review |
 | Public YouTube/Vimeo video, ≤5 minutes | 4:35 script ready; recording/upload pending |
 | AWS Builder ID | Owner supplies |
-| Free judging access through October 8 | Offline build ready; test public access |
+| Free judging access through October 8 | Public HTTPS demo available; maintain access and credits through judging |
 | English materials and rights clearance | Drafts English; owner confirms rights |
-| Optional live demo / AgentCore | Not deployed |
+| Optional live demo / AgentCore | EC2/Bedrock/CloudFront demo deployed; AgentCore not deployed |
 | Optional public Builder article with Agents for Humans title | Draft ready; publication pending |
 
 ## Product release gates
@@ -31,11 +31,11 @@ Official requirements checked September 11, 2026: [rules](https://agentsforhuman
 - [x] Architecture distinguishes current code from optional cloud infrastructure.
 - [x] Install AWS dependencies, run `pip check` and SDK-construction check in GitHub CI.
 - [x] Complete a real Strands/Bedrock tool invocation and save evidence ([run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)).
-- [ ] Complete browser approval/rejection tests in model-backed mode.
-- [ ] Validate desktop/mobile layouts and collect actual screenshots.
+- [x] Complete browser approval/rejection tests in model-backed mode (owner confirmed both paths).
+- [x] Inspect owner-supplied desktop landing-page screenshot.\n- [ ] Validate mobile layout and collect gate/completion/rejection screenshots.
 - [x] Verify GitHub license detection and passing CI on the initial source release.
 - [ ] Record public video without fabricated model results or deployment claims.
-- [ ] If hosting, verify HTTPS, persistence, session isolation and spend controls.
+- [x] Deploy public HTTPS demo; launcher origin health passed in Bedrock mode.\n- [ ] Complete deployed restart persistence/session-isolation checks and review remaining credits.
 - [ ] Replace any draft-status/link instructions in published materials with actual outcomes.
 - [ ] Review every Devpost field, attach assets and click final submit before the deadline.
 

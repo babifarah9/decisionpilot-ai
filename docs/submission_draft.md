@@ -47,7 +47,7 @@ Neither approval nor execution is an agent tool. The agent never receives the br
 
 The Bedrock integration uses a configurable model, initially Amazon Nova Lite in `us-east-1`. The optional AgentCore entrypoint hosts only the stateless planner. The UI, human decision controller and transactional state remain on a persistent host, with an EC2/EBS deployment path and HTTPS proxy configuration supplied.
 
-Live Strands/Bedrock planning passed on September 13, 2026: GitHub assumed a restricted AWS role through OIDC, Amazon Nova Lite drove tool-based planning, and the workflow stopped at the human gate without executing a booking. Public hosting and AgentCore remain pending; no deployment claim is made.
+Live Strands/Bedrock planning passed on September 13, 2026: GitHub assumed a restricted AWS role through OIDC, Amazon Nova Lite drove tool-based planning, and the workflow stopped at the human gate without executing a booking. The public demo is deployed on EC2 with encrypted EBS storage and CloudFront HTTPS. The owner confirmed both approval/completion and rejection through the browser. AgentCore remains an optional, undeployed integration.
 
 ## Human Decision Gate
 
@@ -65,7 +65,7 @@ A 35-minute baseline and one minute of attention would imply 34 estimated minute
 
 The main engineering challenge was turning a prompt-level promise into an enforced state transition. We addressed replayable decisions, duplicate execution, task ownership checks, shared agent state, quote expiration and false completion after failed verification. We also separated persistent human decisions from potentially ephemeral cloud runtime sessions.
 
-Initial local dependency and browser-access limitations were partly resolved by using GitHub CI: SDK installation and live Bedrock planning now pass. Browser acceptance and public deployment remain separate checks.
+Initial local dependency and browser-access limitations were partly resolved by using GitHub CI: SDK installation and live Bedrock planning now pass. Public deployment subsequently succeeded, and the owner confirmed the browser approval/completion and rejection paths. Mobile and restart acceptance remain follow-up checks.
 
 ## Accomplishments
 
@@ -77,8 +77,16 @@ The quality of an autonomous workflow depends on its boundaries and recovery beh
 
 ## What is next
 
-First, complete visual QA and public deployment, then record the working demo. After the hackathon, integrate a real service provider with authenticated users, fresh quotes, provider-side idempotency and external receipt verification. Additional workflows will follow only after the car-service experience is reliable.
+Next, record the live demo and complete mobile, session-isolation and restart acceptance checks. After the hackathon, integrate a real service provider with authenticated users, fresh quotes, provider-side idempotency and external receipt verification. Additional workflows will follow only after the car-service experience is reliable.
 
 ## Attribution and build disclosure
 
 Developed from the entrant-supplied DecisionPilot starter package with AI coding assistance. The entrant must confirm that the project was created during the competition period and disclose any earlier work. Application source is MIT licensed; third-party SDKs retain their respective licenses. All appointment data is synthetic.
+
+## Submission links
+
+- Source: https://github.com/babifarah9/decisionpilot-ai
+- Live demo: https://d2bjqcxkm4ezmd.cloudfront.net
+- Architecture: https://github.com/babifarah9/decisionpilot-ai/blob/main/architecture/architecture.png
+- Live hosting architecture: https://github.com/babifarah9/decisionpilot-ai/blob/main/docs/live-architecture.md
+- Video: upload the recorded demo and insert its public URL before submission.
