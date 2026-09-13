@@ -1,0 +1,308 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "DecisionPilot demo: EC2, encrypted EBS, CloudFront HTTPS, SSM and Nova-only instance role. Metered resources. us-east-1 only.",
+  "Parameters": {
+    "SourceCommit": {
+      "Type": "String",
+      "AllowedPattern": "[a-f0-9]{40}",
+      "Description": "Reviewed GitHub source commit to install"
+    },
+    "ImageId": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+    },
+    "CloudFrontPrefixListId": {
+      "Type": "String",
+      "AllowedPattern": "pl-[a-f0-9]+",
+      "Description": "AWS-managed com.amazonaws.global.cloudfront.origin-facing prefix list in us-east-1"
+    }
+  },
+  "Resources": {
+    "Vpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.84.0.0/16",
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true
+      }
+    },
+    "Gateway": {
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "GatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "InternetGatewayId": {
+          "Ref": "Gateway"
+        }
+      }
+    },
+    "Subnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "CidrBlock": "10.84.1.0/24",
+        "MapPublicIpOnLaunch": true
+      }
+    },
+    "Routes": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        }
+      }
+    },
+    "InternetRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "GatewayAttachment",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "Routes"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "Gateway"
+        }
+      }
+    },
+    "SubnetRoutes": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "Subnet"
+        },
+        "RouteTableId": {
+          "Ref": "Routes"
+        }
+      }
+    },
+    "Firewall": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "CloudFront origin traffic only; no SSH",
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "SourcePrefixListId": {
+              "Ref": "CloudFrontPrefixListId"
+            }
+          }
+        ]
+      }
+    },
+    "HostRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "NovaLiteOnly",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "bedrock:InvokeModel",
+                    "bedrock:InvokeModelWithResponseStream"
+                  ],
+                  "Resource": "arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "Profile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "HostRole"
+          }
+        ]
+      }
+    },
+    "Host": {
+      "Type": "AWS::EC2::Instance",
+      "DependsOn": [
+        "InternetRoute",
+        "SubnetRoutes"
+      ],
+      "Properties": {
+        "ImageId": {
+          "Ref": "ImageId"
+        },
+        "InstanceType": "t3.small",
+        "CreditSpecification": {
+          "CPUCredits": "standard"
+        },
+        "IamInstanceProfile": {
+          "Ref": "Profile"
+        },
+        "SubnetId": {
+          "Ref": "Subnet"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "Firewall"
+          }
+        ],
+        "MetadataOptions": {
+          "HttpTokens": "required",
+          "HttpPutResponseHopLimit": 1
+        },
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": 12,
+              "VolumeType": "gp3",
+              "Encrypted": true,
+              "DeleteOnTermination": true
+            }
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Sub": "#!/bin/bash\nset -euo pipefail\ndnf install -y python3.12 python3.12-pip unzip\nuseradd --system --home-dir /opt/decisionpilot pilot\nmkdir -p /opt/decisionpilot /var/lib/decisionpilot\ncurl -fL --retry 3 https://github.com/babifarah9/decisionpilot-ai/archive/${SourceCommit}.zip -o /tmp/source.zip\nunzip -q /tmp/source.zip -d /tmp/dp-source\ncp -a /tmp/dp-source/decisionpilot-ai-${SourceCommit}/. /opt/decisionpilot/\npython3.12 -m venv /opt/decisionpilot/venv\n/opt/decisionpilot/venv/bin/pip install '/opt/decisionpilot[aws]'\n/opt/decisionpilot/venv/bin/pip check\nchown pilot:pilot /var/lib/decisionpilot\ncat > /etc/systemd/system/decisionpilot.service <<'UNIT'\n[Unit]\nDescription=DecisionPilot synthetic car-service demo\nAfter=network-online.target\nWants=network-online.target\nConditionPathExists=/etc/decisionpilot.env\n[Service]\nUser=pilot\nGroup=pilot\nWorkingDirectory=/opt/decisionpilot\nEnvironmentFile=/etc/decisionpilot.env\nExecStart=/opt/decisionpilot/venv/bin/python -m decisionpilot.server\nRestart=on-failure\nRestartSec=5\nNoNewPrivileges=true\nProtectSystem=strict\nReadWritePaths=/var/lib/decisionpilot\nProtectHome=true\nPrivateTmp=true\n[Install]\nWantedBy=multi-user.target\nUNIT\nsystemctl daemon-reload\nsystemctl enable decisionpilot\nsystemctl enable --now amazon-ssm-agent\ntouch /opt/decisionpilot/ready\n"
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "decisionpilot-demo"
+          }
+        ]
+      }
+    },
+    "PublicAddress": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": "GatewayAttachment",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "AddressAssociation": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "PublicAddress",
+            "AllocationId"
+          ]
+        },
+        "InstanceId": {
+          "Ref": "Host"
+        }
+      }
+    },
+    "DemoDistribution": {
+      "Type": "AWS::CloudFront::Distribution",
+      "DependsOn": "AddressAssociation",
+      "Properties": {
+        "DistributionConfig": {
+          "Enabled": true,
+          "Comment": "DecisionPilot synthetic demo; no cached sessions",
+          "PriceClass": "PriceClass_100",
+          "Origins": [
+            {
+              "Id": "app",
+              "DomainName": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "ec2-",
+                    {
+                      "Fn::Join": [
+                        "-",
+                        {
+                          "Fn::Split": [
+                            ".",
+                            {
+                              "Ref": "PublicAddress"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    ".compute-1.amazonaws.com"
+                  ]
+                ]
+              },
+              "CustomOriginConfig": {
+                "HTTPPort": 8080,
+                "OriginProtocolPolicy": "http-only"
+              }
+            }
+          ],
+          "DefaultCacheBehavior": {
+            "TargetOriginId": "app",
+            "ViewerProtocolPolicy": "redirect-to-https",
+            "AllowedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS",
+              "PUT",
+              "PATCH",
+              "POST",
+              "DELETE"
+            ],
+            "CachedMethods": [
+              "GET",
+              "HEAD"
+            ],
+            "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+            "OriginRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3"
+          },
+          "ViewerCertificate": {
+            "CloudFrontDefaultCertificate": true
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "DemoUrl": {
+      "Value": {
+        "Fn::Sub": "https://${DemoDistribution.DomainName}"
+      }
+    },
+    "InstanceId": {
+      "Value": {
+        "Ref": "Host"
+      }
+    },
+    "DistributionId": {
+      "Value": {
+        "Ref": "DemoDistribution"
+      }
+    }
+  }
+}

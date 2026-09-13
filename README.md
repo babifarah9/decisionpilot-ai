@@ -6,7 +6,7 @@
 
 DecisionPilot AI handles the comparison and coordination behind routine personal administration, then pauses for a human decision before an action can commit money or time. Built for the **Everyday Agents** track of AWS **Agents for Humans**, using the **Strands Agents SDK** and an Amazon Bedrock integration.
 
-> **Current release:** the local, deterministic car-service demo and its safety/API tests work. Bedrock/Strands invocation, AgentCore deployment, public hosting, and browser visual QA are not yet verified. GitHub CI now passes AWS dependency installation, dependency checks and real SDK construction. Live model invocation and deployment still require AWS authorization. Start with [the manual AWS validation guide](docs/aws-next-step.md). All provider inventory, prices and bookings are simulated—even in Bedrock mode. No garage is contacted and no payment is taken.
+> **Current release:** live Strands/Bedrock planning passed on September 13, 2026 using Amazon Nova Lite and stopped at the Human Decision Gate ([evidence run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)). The 32 safety/API tests and SDK construction checks pass. Public hosting, browser visual QA and AgentCore deployment remain pending. Use [the prepared AWS demo deployment](docs/public-demo-next-step.md) next. All providers, prices and bookings are simulated, including in Bedrock mode; no garage is contacted or payment taken.
 
 ## Try it in under a minute
 

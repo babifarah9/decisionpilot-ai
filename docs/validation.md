@@ -1,8 +1,8 @@
-# Validation report — September 11, 2026
+# Validation report — September 13, 2026
 
 ## Result
 
-**Working local deterministic MVP; cloud and publication gates remain blocked.** This report does not certify the project as ready to submit.
+**Working deterministic MVP and verified live Strands/Bedrock planning; public hosting and browser acceptance remain pending.** This report does not certify the project as ready to submit.
 
 | Check | Result |
 |---|---|
@@ -15,7 +15,7 @@
 | Architecture visual inspection | PNG rendered and inspected |
 | SDK dependency installation | Passed on GitHub CI; pip check also passed |
 | Real SDK construction | Passed on GitHub CI; two read-only tools and AgentCore rejection of approval payload verified |
-| Live Strands/Bedrock invocation | Not performed; owner AWS authorization pending |
+| Live Strands/Bedrock invocation | Passed September 13: Nova Lite planning reached the human gate; no booking executed |
 | AgentCore deployment | Not performed; owner AWS authorization required |
 | Container build / public deployment | Prepared, not executed |
 | Browser visual QA / screenshots | Blocked: cloud browser rejected access to local address |
@@ -46,7 +46,7 @@ HTTP tests cover the full application path, session isolation, CSRF, foreign ori
 
 ## Limitations requiring disclosure
 
-Provider inventory and receipt creation are simulated. No real appointment search, payment, email or calendar action occurs. Local SQLite is not a distributed store, and its audit is not tamper-proof. Anonymous cookie identity is for synthetic demo sessions only. The attention baseline is assumed, and active browser time is an imperfect proxy. Cloud compatibility and visual polish must be validated with the scripts/shot list after access is available.
+Provider inventory and receipt creation are simulated. No real appointment search, payment, email or calendar action occurs. Local SQLite is not a distributed store, and its audit is not tamper-proof. Anonymous cookie identity is for synthetic demo sessions only. The attention baseline is assumed, and active browser time is an imperfect proxy. Cloud planner compatibility passed; deployed UI behavior and visual polish still need browser validation.
 
 ## Reproduction commands
 
@@ -71,4 +71,8 @@ Record actual cloud outputs, installed versions, successful UI checks and public
 
 ## GitHub evidence
 
-[Passing CI run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34615901169) for source commit `1b67769bfc7de631db53f4c19c57924acb9520f6`. The manual live-AWS workflow remains unrun.
+[Passing CI run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34615901169) for source commit `1b67769bfc7de631db53f4c19c57924acb9520f6`. [Live AWS workflow passed](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240); OIDC authentication, SDK installation, model-backed planning and evidence upload all succeeded.
+
+## Prepared deployment validation
+
+Public CloudFormation template passed `cfn-lint` for us-east-1. Launcher Python compilation, embedded bootstrap/configuration shell syntax, exact HTTPS-origin handling and rejection of malformed host URLs passed. All 32 existing tests passed again. These checks do not establish that AWS provisioning or browser acceptance has succeeded.

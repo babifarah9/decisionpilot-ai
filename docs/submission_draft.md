@@ -47,7 +47,7 @@ Neither approval nor execution is an agent tool. The agent never receives the br
 
 The Bedrock integration uses a configurable model, initially Amazon Nova Lite in `us-east-1`. The optional AgentCore entrypoint hosts only the stateless planner. The UI, human decision controller and transactional state remain on a persistent host, with an EC2/EBS deployment path and HTTPS proxy configuration supplied.
 
-Cloud deployment and live model validation are pending account authorization. No AgentCore or live-hosting claim is made in this submission draft.
+Live Strands/Bedrock planning passed on September 13, 2026: GitHub assumed a restricted AWS role through OIDC, Amazon Nova Lite drove tool-based planning, and the workflow stopped at the human gate without executing a booking. Public hosting and AgentCore remain pending; no deployment claim is made.
 
 ## Human Decision Gate
 
@@ -65,7 +65,7 @@ A 35-minute baseline and one minute of attention would imply 34 estimated minute
 
 The main engineering challenge was turning a prompt-level promise into an enforced state transition. We addressed replayable decisions, duplicate execution, task ownership checks, shared agent state, quote expiration and false completion after failed verification. We also separated persistent human decisions from potentially ephemeral cloud runtime sessions.
 
-The build environment blocked AWS dependency installation and local browser access, so the package includes explicit SDK, cloud and visual validation steps rather than presenting those checks as completed.
+Initial local dependency and browser-access limitations were partly resolved by using GitHub CI: SDK installation and live Bedrock planning now pass. Browser acceptance and public deployment remain separate checks.
 
 ## Accomplishments
 
@@ -77,7 +77,7 @@ The quality of an autonomous workflow depends on its boundaries and recovery beh
 
 ## What is next
 
-First, complete authorized Bedrock validation, visual QA and public deployment, then record the working demo. After the hackathon, integrate a real service provider with authenticated users, fresh quotes, provider-side idempotency and external receipt verification. Additional workflows will follow only after the car-service experience is reliable.
+First, complete visual QA and public deployment, then record the working demo. After the hackathon, integrate a real service provider with authenticated users, fresh quotes, provider-side idempotency and external receipt verification. Additional workflows will follow only after the car-service experience is reliable.
 
 ## Attribution and build disclosure
 

@@ -1,6 +1,6 @@
 # Setup and deployment
 
-Status: **prepared, not deployed**. No AWS resources were provisioned or model calls made during this build. The source repository is https://github.com/babifarah9/decisionpilot-ai. Do not describe those steps as completed until the evidence below exists.
+Status: **live Strands/Bedrock planning verified; public hosting and AgentCore not yet deployed**. [Passing live run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240). Start with the [reviewed CloudShell public-demo guide](public-demo-next-step.md).
 
 ## 1. Local test build
 

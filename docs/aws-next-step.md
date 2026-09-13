@@ -3,7 +3,7 @@
 GitHub source publication, MIT detection, both Python safety jobs and the actual SDK-install/construction job have succeeded:
 https://github.com/babifarah9/decisionpilot-ai/actions/runs/34615901169
 
-Live AWS inference has not yet run. A manual GitHub workflow is prepared so no access keys need to be copied into GitHub or chat.
+Live AWS inference passed on September 13, 2026 ([run](https://github.com/babifarah9/decisionpilot-ai/actions/runs/34779404240)). For hosting, continue with [the public-demo guide](public-demo-next-step.md). The steps below reproduce the completed inference setup. A manual GitHub workflow is prepared so no access keys need to be copied into GitHub or chat.
 
 ## Owner actions
 

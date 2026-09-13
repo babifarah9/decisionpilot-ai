@@ -1,6 +1,6 @@
 # Agents for Humans: Building DecisionPilot AI with a Human-Only Approval Gate
 
-*Draft for owner review. Publish after live Bedrock validation and update the deployment-status paragraph to match observed results. Do not describe an untested cloud path as deployed.*
+*Draft for owner review. Live Bedrock validation passed; update the deployment-status paragraph after public hosting is verified. Do not describe an untested cloud path as deployed.*
 
 An annual car-service booking sounds simple. In practice, it involves checking providers, comparing prices, evaluating ratings, finding a suitable appointment, and confirming the details. Most of that is repetitive preparation. The final commitment is the part that deserves human attention.
 
@@ -38,7 +38,7 @@ SQLite stores the workflow, audit events and simulated receipts on a persistent 
 
 The optional AgentCore entrypoint hosts only the stateless planner. It never receives the browser's session token or exposes an approval action. Keeping durable human decisions outside ephemeral runtime storage avoids losing approvals as sessions end or compute scales.
 
-The package includes an EC2/EBS hosting path and HTTPS container configuration. At the time this draft was prepared, dependency installation was blocked in the build environment and AWS credentials were not connected, so live Bedrock validation and AgentCore/public deployment remained pending. That status must be resolved and documented before making deployment claims.
+The package includes an EC2/EBS hosting path and HTTPS container configuration. On September 13, 2026, the real Strands/Nova planning test passed using a restricted AWS role assumed through GitHub OIDC. It reached the human gate without executing a booking. AgentCore and public hosting remain pending. A reviewed CloudFormation/CloudShell deployment is prepared.
 
 ## Measuring attention without overstating it
 
@@ -54,7 +54,7 @@ The revised local build passes 32 lifecycle and HTTP tests. They exercise the fu
 
 ## Next steps
 
-First comes verified cloud execution, visual QA, public hosting and an honest end-to-end demo video. A real provider adapter comes later, with authenticated identity, fresh quotes, provider-side idempotency and external receipt verification. More workflows can wait until this one is reliable.
+Next come visual QA, public hosting and an end-to-end demo video. A real provider adapter comes later, with authenticated identity, fresh quotes, provider-side idempotency and external receipt verification. More workflows can wait until this one is reliable.
 
 DecisionPilot's central idea is simple: autonomy is useful when it removes repetitive supervision while preserving the human decision that actually matters.
 

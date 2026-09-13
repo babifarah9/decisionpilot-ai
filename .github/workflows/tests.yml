@@ -26,3 +26,13 @@ jobs:
       - run: python -m pip install '.[aws]'
       - run: python -m pip check
       - run: python scripts/check_sdk.py
+  deployment-template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install cfn-lint
+      - run: cfn-lint deploy/public-demo.json -r us-east-1
+      - run: python -m py_compile deploy/deploy_aws.py
