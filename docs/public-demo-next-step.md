@@ -14,7 +14,7 @@ SQLite lives at `/var/lib/decisionpilot/workflows-v2.db` and survives service/in
 
 1. Open AWS CloudShell in **us-east-1** using the intended account. The existing GitHub role cannot create this infrastructure; use your authorized console identity.
 2. Download this repository at the exact reviewed commit, unzip it, and enter the project directory. The assistant's handoff supplies the pinned commands.
-3. Install the launcher dependency with `python3 -m pip install --user boto3`. Run `python3 deploy/deploy_aws.py --source-commit <40-character-reviewed-commit>`.
+3. Install the launcher dependency in an isolated environment: `python3 -m venv /tmp/decisionpilot-launcher`, then `/tmp/decisionpilot-launcher/bin/python -m pip install boto3`. Use `/tmp/decisionpilot-launcher/bin/python` instead of `python3` for the launcher commands below. Do not use `--user` inside a virtual environment. Run `python3 deploy/deploy_aws.py --source-commit <40-character-reviewed-commit>`.
 4. The script validates the template and prepares a **CREATE change set** without launching compute. Review the printed account, resources and CloudFormation change set. Only type `DEPLOY` if you approve creation, public hosting and metered usage.
 5. Wait for stack creation and instance configuration. Share the printed **Demo URL**. The origin health check does not replace browser approval/rejection testing.
 
