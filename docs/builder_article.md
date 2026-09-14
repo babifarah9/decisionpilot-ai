@@ -62,3 +62,5 @@ DecisionPilot's central idea is simple: autonomy is useful when it removes repet
 **Demo:** https://d2bjqcxkm4ezmd.cloudfront.net  
 **Architecture:** attach `architecture/architecture.png`.  
 **License:** MIT. Developed from an entrant-supplied starter with AI coding assistance; providers and receipts are synthetic.
+
+**Demo video:** https://youtu.be/txn8iroBFnw

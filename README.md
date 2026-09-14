@@ -2,7 +2,7 @@
 
 **Your agent does the work. You make the call.**
 
-[Live demo](https://d2bjqcxkm4ezmd.cloudfront.net) · [GitHub repository](https://github.com/babifarah9/decisionpilot-ai) · [MIT license](LICENSE) · [Architecture](architecture/architecture.png) · [Setup and deployment](docs/deployment.md) · [Submission kit](docs/submission_draft.md) · [Validation status](docs/validation.md)
+[Demo video](https://youtu.be/txn8iroBFnw) · [Live demo](https://d2bjqcxkm4ezmd.cloudfront.net) · [GitHub repository](https://github.com/babifarah9/decisionpilot-ai) · [MIT license](LICENSE) · [Architecture](architecture/architecture.png) · [Setup and deployment](docs/deployment.md) · [Submission kit](docs/submission_draft.md) · [Validation status](docs/validation.md)
 
 DecisionPilot AI handles the comparison and coordination behind routine personal administration, then pauses for a human decision before an action can commit money or time. Built for the **Everyday Agents** track of AWS **Agents for Humans**, using the **Strands Agents SDK** and an Amazon Bedrock integration.
 

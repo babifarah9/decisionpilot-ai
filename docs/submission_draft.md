@@ -89,4 +89,4 @@ Developed from the entrant-supplied DecisionPilot starter package with AI coding
 - Live demo: https://d2bjqcxkm4ezmd.cloudfront.net
 - Architecture: https://github.com/babifarah9/decisionpilot-ai/blob/main/architecture/architecture.png
 - Live hosting architecture: https://github.com/babifarah9/decisionpilot-ai/blob/main/docs/live-architecture.md
-- Video: upload the recorded demo and insert its public URL before submission.
+- Video: https://youtu.be/txn8iroBFnw
