@@ -44,7 +44,7 @@ A rejection ends the workflow. Change preferences and start a fresh workflow to 
 
 [Editable SVG](architecture/architecture.svg) · [Mermaid source](architecture/architecture.mmd) · [State machine](architecture/states.mmd)
 
-The UI and human controller persist workflow state, decisions, receipts and audit events in SQLite. Use a persistent volume on one host. AgentCore, when enabled, hosts only the **stateless planner**; do not place approval state on its ephemeral filesystem. Optional EC2/EBS hosting and AgentCore are prepared deployment paths, not deployed services.
+The deployed application runs on Amazon EC2 behind CloudFront HTTPS. The Strands SDK planning service uses Amazon Bedrock Nova Lite and read-only search and evaluation tools. A separate controller accepts explicit human approval or rejection, executes approved simulated bookings and verifies receipts. SQLite persists workflow state and audit events on encrypted Amazon EBS. [View the live AWS architecture](docs/live-architecture.md).
 
 ## Transparent selection
 
