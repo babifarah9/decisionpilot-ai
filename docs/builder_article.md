@@ -1,66 +1,93 @@
 # Agents for Humans: Building DecisionPilot AI with a Human-Only Approval Gate
 
-*Draft for owner review. Live Bedrock validation and AWS deployment passed; the owner confirmed both browser decision paths. Do not describe an untested cloud path as deployed.*
+*By Bassem Abi-Farah*
 
-An annual car-service booking sounds simple. In practice, it involves checking providers, comparing prices, evaluating ratings, finding a suitable appointment, and confirming the details. Most of that is repetitive preparation. The final commitment is the part that deserves human attention.
+An annual car-service booking sounds simple. In practice, it means checking providers, comparing prices and ratings, finding a suitable appointment, and confirming the details. Most of that work is repetitive preparation. The final commitment is the part that deserves human attention.
 
-I built DecisionPilot AI around that distinction for the AWS Agents for Humans hackathon. The goal is a focused Everyday Agent: receive an objective, prepare a defensible recommendation, and interrupt the person only when a decision is necessary.
+I built **DecisionPilot AI** for the AWS Agents for Humans hackathon to help busy individuals and families delegate that preparation while keeping control over spending and commitments.
 
-## A deliberately narrow first workflow
+The idea is straightforward: **your agent does the work; you make the call.**
 
-The MVP starts with: “Schedule my annual car service under $180. I prefer a morning appointment and want the best balance of rating and price.” The user confirms the budget and daypart in the interface.
+## One objective, one meaningful decision
 
-The demo inventory contains four fictional appointments. A disclosed scoring rule gives equal weight to rating and remaining budget headroom. Budget and the morning preference are constraints. The strongest eligible appointment is presented with its price, rating, rationale and alternatives.
+The first workflow begins with a familiar request:
 
-All bookings are simulated. That lets us exercise state transitions, explicit decisions, duplicate protection and verification without pretending to have a garage API or taking payment.
+> Schedule my annual car service under $180. I prefer a morning appointment and want the best balance of rating and price.
 
-## Where Strands fits
+The user confirms the budget and appointment preference. DecisionPilot then searches the available options, evaluates the tradeoffs, and proposes the strongest eligible appointment.
 
-The AWS path creates a fresh Strands Agent for each objective. Its Bedrock model is configurable, initially Amazon Nova Lite. The agent receives two custom tools: one to search appointments and one to evaluate them. Structured output returns the plan, selected candidate and explanation.
+Its Human Decision Gate shows the provider, appointment time, price, recommendation rationale, and alternatives. The workflow pauses until the person explicitly approves or rejects the proposal.
 
-The controller does not blindly trust the recommendation. It verifies that the required tools were used and checks the selected candidate against trusted inventory and the confirmed constraints. A malformed or invalid recommendation fails safely. The interface does not substitute offline success if AWS returns an error.
+Approval enables execution of that specific proposal, followed by receipt verification. Rejection ends the workflow without a booking. Throughout the process, the interface displays progress and maintains an audit trail.
 
-I kept the tool set deliberately small. There is no generic shell, filesystem or arbitrary network tool. Most importantly, there is no approve function and no execute function registered with the agent.
+The demonstration uses fictional providers, illustrative USD prices, and simulated bookings. No garage is contacted and no payment is made. The AI planning, decision controls, persistence, and verification logic are implemented and working.
 
-## Approval is a separate capability
+## Building with Strands Agents SDK
 
-A prompt saying “ask first” is not the whole safety design. DecisionPilot's controller persists an exact proposal, fingerprints its contents, and enters `WAITING_FOR_HUMAN`. The planning invocation ends.
+DecisionPilot uses the **Strands Agents SDK** with **Amazon Nova Lite through Amazon Bedrock**. Each objective receives a fresh agent instance with two custom tools:
 
-The human's browser then sends an explicit decision to a separate controller. It checks session ownership before changing state, rejects stale or replayed decisions, and records approval or rejection transactionally. Approval authorizes one specific appointment at one specific price.
+- **Search appointments:** retrieve candidate appointments from the synthetic inventory.
+- **Evaluate appointments:** compare candidates against the confirmed constraints and scoring rule.
 
-The executor accepts only that approved, unchanged, unexpired proposal. A unique proposal key prevents duplicate simulated side effects during retries and concurrent requests. The verifier compares the provider receipt with the approved details. A mismatch withholds completion.
+The agent plans its tool use and returns a structured recommendation containing the plan, selected candidate, and explanation.
 
-This protects the boundary between the autonomous agent and the human decision. It does not claim to protect against a compromised trusted host or a stolen browser session. Real paid bookings would require stronger user authentication and provider integration.
+A separate application controller validates that recommendation. It checks that the required tools were used, that the appointment exists in the trusted inventory, and that it meets the confirmed budget and morning constraint. Eligible appointments are ranked using equal weights for normalized rating and remaining budget headroom.
 
-## Persistence and AWS deployment choices
+This separation makes model reasoning useful without treating every model response as an executable instruction.
 
-SQLite stores the workflow, audit events and simulated receipts on a persistent controller-host volume. That is appropriate for a single-host hackathon demo and survives process restarts when the volume is retained.
+## Why the agent cannot approve itself
 
-The optional AgentCore entrypoint hosts only the stateless planner. It never receives the browser's session token or exposes an approval action. Keeping durable human decisions outside ephemeral runtime storage avoids losing approvals as sessions end or compute scales.
+The central safety decision was to keep both approval and execution out of the agent's tool set.
 
-The package includes an EC2/EBS hosting path and HTTPS container configuration. On September 13, 2026, the real Strands/Nova planning test passed using a restricted AWS role assumed through GitHub OIDC. It reached the human gate without executing a booking. The demo is now hosted on EC2 with encrypted EBS and CloudFront HTTPS, deployed through a reviewed CloudFormation change set. The owner confirmed browser approval/completion and rejection. AgentCore remains undeployed.
+After planning, the controller saves an exact proposal, fingerprints its contents, and places the workflow in a waiting-for-human state. The planning invocation ends.
 
-## Measuring attention without overstating it
+The human's browser submits approval or rejection to the controller outside the autonomous agent loop. The controller checks session ownership, proposal identity, and expiration before recording the decision. Approval authorizes a specific appointment at a specific price.
 
-The Human Attention Budget subtracts active browser interaction time from a user-supplied manual baseline. The baseline starts at 35 minutes but is editable. Hidden tabs and extended inactivity do not accumulate attention time. Estimated savings are credited only after verification.
+The executor accepts only an approved, unchanged, unexpired proposal. A unique proposal key prevents duplicate simulated bookings during retries or concurrent requests. The verifier then compares the receipt against the approved provider, appointment, and price. A mismatch prevents completion.
 
-This is a product feedback mechanism, not a research result. It makes assumptions visible and avoids claiming that an arbitrary fixed number of seconds represents actual human effort.
+These controls enforce the boundary between autonomous preparation and human authorization. Real paid bookings would also require authenticated user accounts and a securely integrated provider.
 
-## What testing changed
+## From planning to a live AWS application
 
-The starter helped reveal the failure modes that matter: shared agent instances, ownership checks after mutation, repeatable approvals, duplicate execution and success messages without substantive verification.
+The public demo runs on **Amazon EC2**, with **Amazon CloudFront providing HTTPS**. **SQLite** stores workflow state, proposals, simulated receipts, and audit events on encrypted **Amazon EBS** storage. Retaining the database volume preserves state across application restarts.
 
-The revised local build passes 32 lifecycle and HTTP tests. They exercise the full gate, rejection, ownership, concurrency, expiration, tampering, receipt mismatch, restart persistence and CSRF protections. Separate scripts construct the real SDK components and, with explicit AWS authorization, run a live Bedrock planning invocation. Cloud checks remain distinct from offline tests.
+AWS IAM roles provide service access without embedding static AWS keys in the application. AWS Systems Manager supports host administration, and AWS CloudFormation defines the deployment infrastructure.
 
-## Next steps
+For validation, GitHub Actions assumed a restricted AWS role through OpenID Connect and ran a real Strands/Bedrock planning invocation. The test reached the Human Decision Gate without executing a booking. The recorded public demonstration shows both approval followed by verified completion and rejection without a booking.
 
-Next come mobile and restart checks and an end-to-end demo video. A real provider adapter comes later, with authenticated identity, fresh quotes, provider-side idempotency and external receipt verification. More workflows can wait until this one is reliable.
+## Making the attention budget visible
 
-DecisionPilot's central idea is simple: autonomy is useful when it removes repetitive supervision while preserving the human decision that actually matters.
+DecisionPilot includes a **Human Attention Budget** to show the intended benefit of delegation.
 
-**Project:** https://github.com/babifarah9/decisionpilot-ai  
-**Demo:** https://d2bjqcxkm4ezmd.cloudfront.net  
-**Architecture:** attach `architecture/architecture.png`.  
-**License:** MIT. Developed from an entrant-supplied starter with AI coding assistance; providers and receipts are synthetic.
+It subtracts active browser interaction time from a user-supplied estimate of the task's usual manual effort. The default baseline is 35 minutes and can be changed. Hidden tabs and extended inactivity do not accumulate attention time. Estimated savings appear only after successful verification.
 
-**Demo video:** https://youtu.be/txn8iroBFnw
+In the recorded demonstration, the interface displayed **33.8 estimated minutes saved**, based on a 35-minute manual baseline and 74 seconds of active attention.
+
+This figure is an illustrative estimate, not a measured productivity gain. Keeping the baseline and interaction time visible lets people understand how the result was calculated.
+
+## Challenges and lessons learned
+
+The most demanding work was turning “ask the human first” into enforceable application behavior.
+
+That required handling expired proposals, replayed decisions, concurrent execution, task ownership, and receipt mismatches. It also meant separating durable workflow state from individual agent invocations.
+
+DecisionPilot passes **32 automated lifecycle and HTTP tests** covering approval, rejection, unauthorized access, concurrency, expiration, tampering, restart persistence, and verification failures. Live Bedrock validation and recorded browser workflows provide additional evidence beyond the deterministic tests.
+
+The main lesson is that dependable autonomy requires more than a good recommendation. Approval must be specific, execution must tolerate retries, and completion must follow verification.
+
+## What comes next
+
+The next step is a real provider integration with authenticated users, fresh quotes, provider-side duplicate protection, and independent receipt verification. Stronger origin security and operational monitoring will accompany that work before the application handles real personal or payment data.
+
+Additional administrative workflows will follow once the car-service experience is reliable.
+
+DecisionPilot brings a practical principle to everyday AI: reduce repetitive supervision while preserving the human decision that matters.
+
+## Explore DecisionPilot AI
+
+- [Try the live application](https://d2bjqcxkm4ezmd.cloudfront.net)
+- [Watch the demonstration](https://youtu.be/txn8iroBFnw)
+- [Explore the source code](https://github.com/babifarah9/decisionpilot-ai)
+- [View the deployed AWS architecture](https://github.com/babifarah9/decisionpilot-ai/blob/main/docs/live-architecture.md)
+
+DecisionPilot AI is released under the MIT license. It was developed from a starter package with AI coding assistance. Third-party SDKs retain their respective licenses.
