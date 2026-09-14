@@ -1,0 +1,52 @@
+name: Render architecture
+on:
+  push:
+    branches: [main]
+    paths:
+      - architecture/architecture.dot
+      - .github/workflows/architecture.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: architecture-render
+  cancel-in-progress: false
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Install Graphviz
+        run: sudo apt-get update -qq && sudo apt-get install -y graphviz
+      - name: Render submission images
+        run: |
+          dot -Tsvg architecture/architecture.dot -o architecture/architecture.svg
+          dot -Tpng -Gdpi=150 architecture/architecture.dot -o architecture/architecture.png
+          dot -Tpdf architecture/architecture.dot -o architecture/architecture.pdf
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for name in ("architecture/architecture.dot", "architecture/architecture.mmd", "architecture/architecture.svg", "docs/live-architecture.md"):
+              text = Path(name).read_text()
+              assert not re.search(r"owner|agent", text, re.I), name
+          assert Path("architecture/architecture.png").stat().st_size < 5_000_000
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: decisionpilot-architecture
+          path: |
+            architecture/architecture.png
+            architecture/architecture.svg
+            architecture/architecture.pdf
+      - name: Save rendered diagrams
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add architecture/architecture.svg architecture/architecture.png architecture/architecture.pdf
+          if ! git diff --cached --quiet; then
+            git commit -m "Render public submission architecture"
+            git push origin HEAD:main
+          fi

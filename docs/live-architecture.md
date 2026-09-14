@@ -1,33 +1,35 @@
-# Live AWS architecture
+# DecisionPilot AI — AWS architecture
 
-Demo: https://d2bjqcxkm4ezmd.cloudfront.net
+[Live demo](https://d2bjqcxkm4ezmd.cloudfront.net) · [Download PNG](../architecture/architecture.png)
 
-The owner deployed EC2/CloudFront successfully and confirmed both browser decision paths. AgentCore is an optional planner adapter and is **not deployed**.
+DecisionPilot AI runs on Amazon EC2 behind Amazon CloudFront. The Strands SDK planning service uses Amazon Bedrock Nova Lite to evaluate synthetic car-service appointments. A separate controller handles human decisions, execution, verification and persistent workflow state.
 
 ```mermaid
 flowchart TD
-    U["Human / browser"] --> C["CloudFront HTTPS"]
-    C --> H["EC2 UI and controller"]
-    H --> S["Strands planner"]
-    S <--> B["Amazon Bedrock / Nova Lite"]
-    S --> T["Read-only search and evaluation tools"]
-    T --> S
-    S --> G["Pending Human Decision Gate"]
-    G --> U
-    U --> D["Explicit approval or rejection"]
-    D --> H
-    H --> E["Execute approved simulated booking"]
-    E --> V["Verify receipt"]
-    V --> A["Completion and attention savings"]
-    H <--> DB["SQLite state and audit / encrypted EBS"]
-    G --> DB
-    E --> DB
-    V --> DB
-    M["AWS Systems Manager"] --> H
+  ui["User / browser"] --> cdn["Amazon CloudFront HTTPS"]
+  cdn --> controller["EC2 web UI and workflow controller"]
+  controller --> planner["Strands SDK planning service"]
+  planner <--> bedrock["Amazon Bedrock / Nova Lite"]
+  planner <--> tools["Read-only search and evaluation / synthetic inventory"]
+  planner --> gate["Human Decision Gate / price, reason and alternatives"]
+  gate --> decision["Human-only decision controller"]
+  ui -->|"Explicit approve or reject"| decision
+  decision -->|"Approved exact proposal"| execute["Idempotent simulated booking"]
+  decision -->|"Rejected or expired"| stop["Stop without booking"]
+  execute --> verify["Verify receipt against approved proposal"]
+  verify -->|"Match"| completed["Completion and estimated human minutes saved"]
+  verify -->|"Mismatch"| failed["Verification failed"]
+  gate --> storage[("SQLite state and audit / encrypted Amazon EBS")]
+  decision --> storage
+  execute --> storage
+  verify --> storage
+  management["AWS Systems Manager and IAM"] -.-> controller
 ```
 
-The agent has no approval or execution tools. Approval is submitted through the owning browser session to the separate controller. Rejection records a terminal decision without executing. Persistent state stays on the EC2 host, outside the autonomous planning loop.
+The planning service has read-only search and evaluation tools. It cannot approve proposals or execute bookings. The Human Decision Gate presents the proposed appointment, price, selection reason and alternatives. Only an explicit decision from the requesting browser session can authorize execution; rejection ends the workflow without a booking.
 
-CloudFront caching is disabled and browser cookies/headers are forwarded. Viewer traffic uses HTTPS; the CloudFront-to-EC2 origin uses HTTP restricted by the CloudFront managed prefix list. The host uses IMDSv2 and an instance role for Nova inference; no static AWS keys are installed. This single-host synthetic demo requires stronger origin protection and authenticated user accounts before handling real personal or payment data.
+After approval, the controller creates a simulated booking and verifies the receipt against the approved proposal. SQLite stores workflow state, decisions, audit events and receipts on an encrypted Amazon EBS volume. Estimated human minutes saved appear only after successful verification.
 
-Database state survives restarts. Deleting or replacing the host deletes its root EBS volume; export evidence first. Provider inventory, prices and receipts are simulated even though the Strands/Bedrock reasoning is real.
+CloudFront provides public HTTPS access. Its connection to the EC2 origin uses HTTP, with ingress restricted to the CloudFront managed prefix list. IAM provides scoped access to Bedrock, and AWS Systems Manager supports host administration.
+
+All provider inventory, prices and bookings are simulated. Strands SDK orchestration and Amazon Bedrock inference run in the deployed application.
